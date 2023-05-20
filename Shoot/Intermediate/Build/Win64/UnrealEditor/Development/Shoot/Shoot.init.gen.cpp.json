@@ -1,0 +1,13 @@
+{
+    "Version": "1.1",
+    "Data": {
+        "Source": "c:\\users\\renderman\\desktop\\github\\shoot\\shoot\\intermediate\\build\\win64\\unrealeditor\\inc\\shoot\\shoot.init.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\users\\renderman\\desktop\\github\\shoot\\shoot\\intermediate\\build\\win64\\shooteditor\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "c:\\users\\renderman\\desktop\\github\\shoot\\shoot\\intermediate\\build\\win64\\unrealeditor\\development\\shoot\\definitions.shoot.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

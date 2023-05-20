@@ -1,0 +1,15 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-Shoot.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:\Users\RenderMan\Desktop\Github\Shoot\Shoot\Intermediate\Build\Win64\ShootEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"C:\Users\RenderMan\Desktop\Github\Shoot\Shoot\Intermediate\Build\Win64\UnrealEditor\Development\Shoot\Shoot.cpp.obj"
+"C:\Users\RenderMan\Desktop\Github\Shoot\Shoot\Intermediate\Build\Win64\UnrealEditor\Development\Shoot\ShootGameModeBase.cpp.obj"
+"C:\Users\RenderMan\Desktop\Github\Shoot\Shoot\Intermediate\Build\Win64\UnrealEditor\Development\Shoot\Shoot.init.gen.cpp.obj"
+"C:\Users\RenderMan\Desktop\Github\Shoot\Shoot\Intermediate\Build\Win64\UnrealEditor\Development\Shoot\ShootGameModeBase.gen.cpp.obj"
+"C:\Users\RenderMan\Desktop\Github\Shoot\Shoot\Intermediate\Build\Win64\UnrealEditor\Development\Shoot\Default.rc2.res"
+/OUT:"C:\Users\RenderMan\Desktop\Github\Shoot\Shoot\Intermediate\Build\Win64\UnrealEditor\Development\Shoot\UnrealEditor-Shoot.lib"
