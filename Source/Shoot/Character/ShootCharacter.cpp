@@ -6,6 +6,9 @@
 #include "Camera\CameraComponent.h"
 #include "GameFramework\CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Shoot/Weapon/Weapon.h"
+#include "Shoot/ShootComponents/CombatComponent.h"
 
 
 AShootCharacter::AShootCharacter()
@@ -28,9 +31,29 @@ AShootCharacter::AShootCharacter()
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
 
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);  // This Component is repliated itself and it does not need to be register
+
 
 }
 
+void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(AShootCharacter, OverlappingWeapon, COND_OwnerOnly); // need include  "Net/UnrealNetwork.h"
+}
+
+
+void AShootCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (Combat)
+	{
+		Combat->Character = this;
+	}
+}
 
 void AShootCharacter::BeginPlay()
 {
@@ -38,17 +61,28 @@ void AShootCharacter::BeginPlay()
 	
 }
 
+void AShootCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+
+}
+
 void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &AShootCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShootCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AShootCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &AShootCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &AShootCharacter::LookUp);
 
 }
+
+
 
 void AShootCharacter::MoveForward(float Value)
 {
@@ -80,10 +114,40 @@ void AShootCharacter::LookUp(float Value)
 	AddControllerPitchInput(Value);
 }
 
-void AShootCharacter::Tick(float DeltaTime)
+void AShootCharacter::EquipButtonPressed()
 {
-	Super::Tick(DeltaTime);
+	//if (Combat && HasAuthority())
+	//{
+	//	Combat->EquipWeapon(OverlappingWeapon);
+	//}
+}
 
+void AShootCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+void AShootCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	OverlappingWeapon = Weapon;
+	if (IsLocallyControlled())
+	{
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
 }
 
 
