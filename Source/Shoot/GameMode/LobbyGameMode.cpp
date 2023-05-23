@@ -9,13 +9,14 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 
 	int32 NumberOfPlayers = GameState.Get()->PlayerArray.Num();
-	if (NumberOfPlayers == 1)
+	if (NumberOfPlayers == 2)
 	{
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			bUseSeamlessTravel = true;
-			World->ServerTravel(FString("/Game/Maps/TestLobbyMap?listen"));
+			// bUseSeamlessTravel = true; 
+			// if I use this seamless travel, the game will be broken after package!!
+			World->ServerTravel(FString("/Game/Maps/ShootingMap?listen"));
 		}
 	}
 }
