@@ -116,10 +116,10 @@ void AShootCharacter::LookUp(float Value)
 
 void AShootCharacter::EquipButtonPressed()
 {
-	//if (Combat && HasAuthority())
-	//{
-	//	Combat->EquipWeapon(OverlappingWeapon);
-	//}
+	if (Combat && HasAuthority())
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
 }
 
 void AShootCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
