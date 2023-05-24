@@ -30,4 +30,5 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	bIsInAir = ShootCharacter->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = ShootCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
+	bWeaponEquipped = ShootCharacter->IsWeaponEquipped();// 这里需要EquippedWeapon能够复制
 }

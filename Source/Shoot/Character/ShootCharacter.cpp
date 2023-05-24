@@ -165,6 +165,10 @@ void AShootCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 }
 
+bool AShootCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
 
 
 
