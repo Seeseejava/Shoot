@@ -48,6 +48,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* Combat;
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed(); // 客户端告诉服务端做什么
 public:	
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
