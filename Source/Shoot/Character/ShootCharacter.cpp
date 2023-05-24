@@ -34,7 +34,7 @@ AShootCharacter::AShootCharacter()
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);  // This Component is repliated itself and it does not need to be register
 
-
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -64,9 +64,6 @@ void AShootCharacter::BeginPlay()
 void AShootCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
-
 }
 
 void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -75,6 +72,10 @@ void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &AShootCharacter::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AShootCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AShootCharacter::CrouchButtonReleased);
+
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShootCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AShootCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &AShootCharacter::Turn);
@@ -127,6 +128,16 @@ void AShootCharacter::EquipButtonPressed()
 			ServerEquipButtonPressed();
 		}
 	}
+}
+
+void AShootCharacter::CrouchButtonPressed()
+{
+	Crouch();
+}
+
+void AShootCharacter::CrouchButtonReleased()
+{
+	UnCrouch();
 }
 
 void AShootCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)

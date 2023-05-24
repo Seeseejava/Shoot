@@ -29,6 +29,8 @@ protected:
 	void LookUp(float Value);
 
 	void EquipButtonPressed();
+	void CrouchButtonPressed();
+	void CrouchButtonReleased();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
