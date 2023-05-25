@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Shoot/Weapon/Weapon.h"
 #include "Shoot/ShootComponents/CombatComponent.h"
+#include "Components\CapsuleComponent.h"
 
 
 AShootCharacter::AShootCharacter()
@@ -35,6 +36,9 @@ AShootCharacter::AShootCharacter()
 	Combat->SetIsReplicated(true);  // This Component is repliated itself and it does not need to be register
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	// do not block camera
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
