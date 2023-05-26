@@ -188,7 +188,14 @@ void AShootCharacter::AimOffset(float DeltaTime)
 		bUseControllerRotationYaw = true;
 	}
 
-	AO_Pitch = GetBaseAimRotation().Pitch;
+	AO_Pitch = GetBaseAimRotation().Pitch; // 因为网络传输会压缩pitch，导致负数变成正数
+	if (AO_Pitch > 90.0f && !IsLocallyControlled())
+	{
+		// map pitch from [270, 360) to [-90, 0)
+		FVector2D InRange(270.f, 360.f);
+		FVector2D OutInRange(-90.f, 0.f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutInRange, AO_Pitch);
+	}
 }
 
 void AShootCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
