@@ -5,6 +5,7 @@
 #include "ShootCharacter.h"
 #include "GameFramework\CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Shoot/Weapon/Weapon.h"
 
 void UShootAnimInstance::NativeInitializeAnimation()
 {
@@ -32,6 +33,7 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsInAir = ShootCharacter->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = ShootCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 	bWeaponEquipped = ShootCharacter->IsWeaponEquipped();// 这里需要EquippedWeapon能够复制
+	EquippedWeapon = ShootCharacter->GetEuqippedWeapon();
 	bIsCrouched = ShootCharacter->bIsCrouched; // 这个自动复制了
 	bAiming = ShootCharacter->IsAiming();
 
@@ -55,4 +57,14 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	AO_Yaw = ShootCharacter->GetAO_Yaw();
 	AO_Pitch = ShootCharacter->GetAO_Pitch();
+
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && ShootCharacter->GetMesh())
+	{
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+		FVector OutPosition;
+		FRotator OutRotation;
+		ShootCharacter->GetMesh()->TransformToBoneSpace(FName("Right-Wrist"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+		LeftHandTransform.SetLocation(OutPosition);
+		LeftHandTransform.SetRotation(FQuat(OutRotation));
+	}
 }
