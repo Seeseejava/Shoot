@@ -36,6 +36,7 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	EquippedWeapon = ShootCharacter->GetEuqippedWeapon();
 	bIsCrouched = ShootCharacter->bIsCrouched; // 这个自动复制了
 	bAiming = ShootCharacter->IsAiming();
+	TurningInPlace = ShootCharacter->GetTurningInPlace();
 
 	// Offset Yaw for Strafing
 	FRotator AimRotation = ShootCharacter->GetBaseAimRotation(); // global 这是一个可复制的值

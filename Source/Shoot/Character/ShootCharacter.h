@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Shoot/ShootTypes/TurningInPlace.h"
+
 #include "ShootCharacter.generated.h"
 
 UCLASS()
@@ -59,8 +61,12 @@ private:
 	void ServerEquipButtonPressed(); // 客户端告诉服务端做什么
 
 	float AO_Yaw;
+	float InterpAO_Yaw;
 	float AO_Pitch;
 	FRotator StartingAimRotation;
+
+	ETurningInPlace TurningInPlace;
+	void TurnInPlace(float DeltaTime);
 public:	
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -70,5 +76,6 @@ public:
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	AWeapon* GetEuqippedWeapon();
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; }
 
 };
