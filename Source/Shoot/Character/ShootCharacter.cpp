@@ -330,3 +330,9 @@ AWeapon* AShootCharacter::GetEuqippedWeapon()
 
 }
 
+FVector AShootCharacter::GetHitTarget() const
+{
+	if (Combat == nullptr) return FVector();
+	return Combat->HitTarget;
+}
+
