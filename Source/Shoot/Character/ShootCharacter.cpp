@@ -81,6 +81,20 @@ void AShootCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+void AShootCharacter::PlayHitReactMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstace = GetMesh()->GetAnimInstance();
+	if (AnimInstace && HitReactMontage)
+	{
+		AnimInstace->Montage_Play(FireWeaponMontage);
+		FName SectionName("FromFront");
+
+		AnimInstace->Montage_JumpToSection(SectionName);
+	}
+}
+
 void AShootCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -297,6 +311,11 @@ void AShootCharacter::TurnInPlace(float DeltaTime)
 			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
 	}
+}
+
+void AShootCharacter::MulticastHit_Implementation()
+{
+	PlayHitReactMontage();
 }
 
 void AShootCharacter::HideCameraIfCharacterClose()
