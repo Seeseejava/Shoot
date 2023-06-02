@@ -76,6 +76,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = combat)
 	class UAnimMontage* FireWeaponMontage;
+
 public:	
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
