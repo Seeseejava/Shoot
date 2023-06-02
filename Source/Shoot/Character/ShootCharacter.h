@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Shoot/ShootTypes/TurningInPlace.h"
+#include "Shoot/Interfaces/InteractWithCrosshairsInterface.h"
 
 #include "ShootCharacter.generated.h"
 
 UCLASS()
-class SHOOT_API AShootCharacter : public ACharacter
+class SHOOT_API AShootCharacter : public ACharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
