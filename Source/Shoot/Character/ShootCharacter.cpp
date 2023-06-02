@@ -88,7 +88,7 @@ void AShootCharacter::PlayHitReactMontage()
 	UAnimInstance* AnimInstace = GetMesh()->GetAnimInstance();
 	if (AnimInstace && HitReactMontage)
 	{
-		AnimInstace->Montage_Play(FireWeaponMontage);
+		AnimInstace->Montage_Play(HitReactMontage);
 		FName SectionName("FromFront");
 
 		AnimInstace->Montage_JumpToSection(SectionName);
