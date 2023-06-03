@@ -29,8 +29,17 @@ class SHOOT_API AShootHUD : public AHUD
 	GENERATED_BODY()
 	
 public:
-	// called every frame
+	// called every frame.
 	virtual void DrawHUD() override;
+
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	TSubclassOf<class UUserWidget> CharacterOverlayClass;
+
+	// This is a instance.
+	class UCharacterOverlay* CharacterOverlay;
+protected:
+	virtual void BeginPlay() override;
+	void AddCharacterOverlay();
 private:
 	FHUDPackage HUDPackage;
 

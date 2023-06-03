@@ -54,6 +54,7 @@ void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(AShootCharacter, OverlappingWeapon, COND_OwnerOnly); // need include  "Net/UnrealNetwork.h"
+	DOREPLIFETIME(AShootCharacter, Health);
 }
 
 
@@ -404,6 +405,11 @@ float AShootCharacter::CalculateSpeed()
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	return Velocity.Size();
+}
+
+void AShootCharacter::OnRep_Health()
+{
+
 }
 
 void AShootCharacter::SetOverlappingWeapon(AWeapon* Weapon)
