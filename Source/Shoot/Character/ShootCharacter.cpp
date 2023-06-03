@@ -12,6 +12,7 @@
 #include "Components\CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "ShootAnimInstance.h"
+#include "Shoot/PlayerController/ShootPlayerController.h"
 
 
 AShootCharacter::AShootCharacter()
@@ -99,6 +100,12 @@ void AShootCharacter::PlayHitReactMontage()
 void AShootCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ShootPlayerController = Cast<AShootPlayerController>(Controller);
+	if (ShootPlayerController)
+	{
+		ShootPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
 	
 }
 

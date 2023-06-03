@@ -13,5 +13,12 @@ UCLASS()
 class SHOOT_API AShootPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	void SetHUDHealth(float Health, float MaxHealth);
+protected:
+	virtual void BeginPlay() override;
+private:
+	class AShootHUD* ShootHUD;
 	
 };
