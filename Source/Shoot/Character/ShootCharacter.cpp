@@ -13,6 +13,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "ShootAnimInstance.h"
 #include "Shoot/PlayerController/ShootPlayerController.h"
+#include "Shoot/GameMode/ShootGameMode.h"
 
 
 AShootCharacter::AShootCharacter()
@@ -102,6 +103,17 @@ void AShootCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UD
 	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
 	UpdateHUDHealth();
 	PlayHitReactMontage();
+
+	if(Health == 0.f)
+	{
+		AShootGameMode* ShootGameMode = GetWorld()->GetAuthGameMode<AShootGameMode>();
+		if (ShootGameMode)
+		{
+			ShootPlayerController = ShootPlayerController == nullptr ? Cast<AShootPlayerController>(Controller) : ShootPlayerController;
+			AShootPlayerController* AttackController = Cast<AShootPlayerController>(InstigatorController);
+			ShootGameMode->PlayerEliminated(this, ShootPlayerController, AttackController);
+		}
+	}
 }
 
 void AShootCharacter::BeginPlay()
@@ -396,6 +408,11 @@ void AShootCharacter::OnRep_ReplicatedMovement()
 	SimProxiesTurn();
 
 	TimeSinceLastMovementReplication = 0.f;
+}
+
+void AShootCharacter::Elim()
+{
+
 }
 
 void AShootCharacter::HideCameraIfCharacterClose()
