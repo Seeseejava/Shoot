@@ -7,5 +7,8 @@
 
 void AShootGameMode::PlayerEliminated(class AShootCharacter* ElimmedCharacter, class AShootPlayerController* VictimController, AShootPlayerController* AttackerController)
 {
-
+	if (ElimmedCharacter)
+	{
+		ElimmedCharacter->Elim();
+	}
 }

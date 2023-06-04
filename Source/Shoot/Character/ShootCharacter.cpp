@@ -84,6 +84,15 @@ void AShootCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+void AShootCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstace = GetMesh()->GetAnimInstance();
+	if (AnimInstace && ElimMontage)
+	{
+		AnimInstace->Montage_Play(ElimMontage);
+	}
+}
+
 void AShootCharacter::PlayHitReactMontage()
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
@@ -410,9 +419,10 @@ void AShootCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-void AShootCharacter::Elim()
+void AShootCharacter::Elim_Implementation()
 {
-
+	bElimmed = true;
+	PlayElimMontage();
 }
 
 void AShootCharacter::HideCameraIfCharacterClose()

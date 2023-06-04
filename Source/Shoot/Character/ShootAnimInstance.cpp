@@ -38,6 +38,7 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bAiming = ShootCharacter->IsAiming();
 	TurningInPlace = ShootCharacter->GetTurningInPlace();
 	brotateRootBone = ShootCharacter->ShouldRotateBone();
+	bElimmed = ShootCharacter->IsElimmed();
 
 	// Offset Yaw for Strafing
 	FRotator AimRotation = ShootCharacter->GetBaseAimRotation(); // global 这是一个可复制的值
