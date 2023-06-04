@@ -15,4 +15,6 @@ class SHOOT_API AShootGameMode : public AGameMode
 	GENERATED_BODY()
 public:
 	virtual void PlayerEliminated(class AShootCharacter* ElimmedCharacter, class AShootPlayerController* VictimController, AShootPlayerController* AttackerController);
+
+	virtual void RequestRespawn(class ACharacter* ElimmedCharacter, AController* ElimmedController);
 };

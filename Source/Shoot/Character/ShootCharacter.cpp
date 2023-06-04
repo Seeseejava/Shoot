@@ -14,12 +14,15 @@
 #include "ShootAnimInstance.h"
 #include "Shoot/PlayerController/ShootPlayerController.h"
 #include "Shoot/GameMode/ShootGameMode.h"
+#include "TimerManager.h"
 
 
 AShootCharacter::AShootCharacter()
 {
  
 	PrimaryActorTick.bCanEverTick = true;
+
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom)"));
 	CameraBoom->SetupAttachment(GetMesh());
@@ -419,10 +422,30 @@ void AShootCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-void AShootCharacter::Elim_Implementation()
+void AShootCharacter::Elim()
+{
+	MulticastElim();
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&AShootCharacter::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void AShootCharacter::MulticastElim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
+}
+
+void AShootCharacter::ElimTimerFinished()
+{
+	AShootGameMode* ShootGameMode = GetWorld()->GetAuthGameMode<AShootGameMode>();
+	if (ShootGameMode)
+	{
+		ShootGameMode->RequestRespawn(this, Controller);
+	}
 }
 
 void AShootCharacter::HideCameraIfCharacterClose()
@@ -458,6 +481,8 @@ void AShootCharacter::OnRep_Health()
 	UpdateHUDHealth();
 	PlayHitReactMontage();
 }
+
+
 
 void AShootCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {

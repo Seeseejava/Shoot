@@ -28,8 +28,9 @@ public:
 
 	virtual void OnRep_ReplicatedMovement() override;
 
+	void Elim(); // called only on server.
 	UFUNCTION(NetMulticast, Reliable)
-	void Elim();
+	void MulticastElim();
 protected:
 
 	virtual void BeginPlay() override;
@@ -125,6 +126,11 @@ private:
 	class AShootPlayerController* ShootPlayerController;
 
 	bool bElimmed = false;
+
+	FTimerHandle ElimTimer;
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 3.f;;
+	void ElimTimerFinished();
 public:	
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
