@@ -51,8 +51,11 @@ protected:
 
 	void SetHUDCrosshairs(float DeltaTime);
 private:
+	UPROPERTY()
 	class AShootCharacter* Character;
+	UPROPERTY()
 	class AShootPlayerController* Controller;
+	UPROPERTY()
 	class AShootHUD* HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)

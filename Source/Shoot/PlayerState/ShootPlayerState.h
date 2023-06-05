@@ -15,9 +15,24 @@ class SHOOT_API AShootPlayerState : public APlayerState
 	GENERATED_BODY()
 	
 public:
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
+	
+	/**
+	 * Replication Notifies
+	 */
 	virtual void OnRep_Score() override;
-	void AddtoScore(float ScoreAmount);
+
+	UFUNCTION()
+	virtual void OnRep_Defeats();
+	void AddToScore(float ScoreAmount);
+	void AddToDefeats(int32 DefeatsAmount);
 private:
+	// Use UPROPERTY() to ensure it is a nullptr.
+	UPROPERTY()
 	class AShootCharacter* Character;
+	UPROPERTY()
 	class AShootPlayerController* Controller;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
+	int32 Defeats;
 };

@@ -162,7 +162,8 @@ void AShootCharacter::PollInit()
 		ShootPlayerState = GetPlayerState<AShootPlayerState>();
 		if (ShootPlayerState)
 		{
-			ShootPlayerState->AddtoScore(0.f);
+			ShootPlayerState->AddToScore(0.f);
+			ShootPlayerState->AddToDefeats(0);
 		}
 	}
 }
