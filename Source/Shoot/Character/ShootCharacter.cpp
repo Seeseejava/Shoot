@@ -18,6 +18,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Shoot/PlayerState/ShootPlayerState.h"
 
 AShootCharacter::AShootCharacter()
 {
@@ -153,6 +154,19 @@ void AShootCharacter::UpdateHUDHealth()
 	}
 }
 
+void AShootCharacter::PollInit()
+{
+	if (ShootPlayerState == nullptr)
+	{
+		// This will return nullptr in frame 0.
+		ShootPlayerState = GetPlayerState<AShootPlayerState>();
+		if (ShootPlayerState)
+		{
+			ShootPlayerState->AddtoScore(0.f);
+		}
+	}
+}
+
 void AShootCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -171,6 +185,7 @@ void AShootCharacter::Tick(float DeltaTime)
 		CalculateAO_Pitch();
 	}
 	HideCameraIfCharacterClose();
+	PollInit();
 }
 
 void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -477,7 +492,7 @@ void AShootCharacter::MulticastElim_Implementation()
 	// Spawn elim bot
 	if (ElimBotEffect)
 	{
-		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 150.f);
 		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(
 			GetWorld(),
 			ElimBotEffect,

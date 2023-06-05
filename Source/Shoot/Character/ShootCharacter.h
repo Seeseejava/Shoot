@@ -38,7 +38,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	void UpdateHUDHealth();
-
+	// Poll for any relevant classes and initialize our HUD
+	void PollInit();
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void Turn(float Value);
@@ -173,6 +174,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ElimBotSound;
+
+	class AShootPlayerState* ShootPlayerState;
 public:	
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -187,4 +190,6 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool ShouldRotateBone() const { return bRotateRootBone; }
 	FORCEINLINE bool IsElimmed() const { return bElimmed; }
+	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 };

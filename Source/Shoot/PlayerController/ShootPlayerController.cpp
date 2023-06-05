@@ -6,6 +6,7 @@
 #include "Shoot/HUD/CharacterOverlay.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Shoot/Character/ShootCharacter.h"
 
 void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -20,6 +21,31 @@ void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		ShootHUD->CharacterOverlay->HealthBar->SetPercent(HealthPercent);
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		ShootHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
+	}
+}
+
+void AShootPlayerController::SetHUDScore(float Score)
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	bool bHUDValid = ShootHUD &&
+		ShootHUD->CharacterOverlay &&
+		ShootHUD->CharacterOverlay->ScoreAmount;
+	if (bHUDValid)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
+		ShootHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
+	}
+}
+
+void AShootPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	AShootCharacter* ShootCharacter = Cast<AShootCharacter>(InPawn);
+	if (ShootCharacter)
+	{
+		// Because SetHUDHealth before, the cast may unsuccess.
+		SetHUDHealth(ShootCharacter->GetHealth(), ShootCharacter->GetMaxHealth());
 	}
 }
 
