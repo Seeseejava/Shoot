@@ -15,7 +15,9 @@
 #include "Shoot/PlayerController/ShootPlayerController.h"
 #include "Shoot/GameMode/ShootGameMode.h"
 #include "TimerManager.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Particles/ParticleSystemComponent.h"
 
 AShootCharacter::AShootCharacter()
 {
@@ -472,6 +474,34 @@ void AShootCharacter::MulticastElim_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// Spawn elim bot
+	if (ElimBotEffect)
+	{
+		FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			ElimBotEffect,
+			ElimBotSpawnPoint,
+			GetActorRotation()
+		);
+	}
+	if (ElimBotSound)
+	{
+		UGameplayStatics::SpawnSoundAtLocation(
+			this,
+			ElimBotSound,
+			GetActorLocation()
+		);
+	}
+}
+
+void AShootCharacter::Destroyed()
+{
+	Super::Destroyed();
+	if (ElimBotComponent)
+	{
+		ElimBotComponent->DestroyComponent();
+	}
 }
 
 void AShootCharacter::ElimTimerFinished()
@@ -480,6 +510,10 @@ void AShootCharacter::ElimTimerFinished()
 	if (ShootGameMode)
 	{
 		ShootGameMode->RequestRespawn(this, Controller);
+	}
+	if (ElimBotComponent)
+	{
+		ElimBotComponent->DestroyComponent();
 	}
 }
 

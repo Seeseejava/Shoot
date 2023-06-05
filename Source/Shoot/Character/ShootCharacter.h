@@ -31,6 +31,8 @@ public:
 	void Elim(); // called only on server.
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElim();
+	// This is replicated.
+	virtual void Destroyed() override;
 protected:
 
 	virtual void BeginPlay() override;
@@ -159,6 +161,18 @@ private:
 	UMaterialInstance* DissolveMaterialInstance0;
 	UPROPERTY(EditAnywhere, Category = Elim)
 	UMaterialInstance* DissolveMaterialInstance1;
+
+	/**
+	 * Elim Bot
+	 */
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* ElimBotEffect;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystemComponent* ElimBotComponent;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ElimBotSound;
 public:	
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
