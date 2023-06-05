@@ -52,6 +52,8 @@ AShootCharacter::AShootCharacter()
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 }
 
 void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -437,6 +439,22 @@ void AShootCharacter::MulticastElim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
+
+	if (DissolveMaterialInstance0)
+	{
+		DynamicDissolveMaterialInstance0 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance0, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance0);
+		DynamicDissolveMaterialInstance0->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+		DynamicDissolveMaterialInstance0->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+	if (DissolveMaterialInstance1)
+	{
+		DynamicDissolveMaterialInstance1 = UMaterialInstanceDynamic::Create(DissolveMaterialInstance1, this);
+		GetMesh()->SetMaterial(1, DynamicDissolveMaterialInstance0);
+		DynamicDissolveMaterialInstance1->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+		DynamicDissolveMaterialInstance1->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+	StartDissolve();
 }
 
 void AShootCharacter::ElimTimerFinished()
@@ -445,6 +463,28 @@ void AShootCharacter::ElimTimerFinished()
 	if (ShootGameMode)
 	{
 		ShootGameMode->RequestRespawn(this, Controller);
+	}
+}
+
+void AShootCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstance0)
+	{
+		DynamicDissolveMaterialInstance0->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+	if (DynamicDissolveMaterialInstance1)
+	{
+		DynamicDissolveMaterialInstance1->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void AShootCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &AShootCharacter::UpdateDissolveMaterial);
+	if (DissolveCurve && DissolveTimeline)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
 	}
 }
 
