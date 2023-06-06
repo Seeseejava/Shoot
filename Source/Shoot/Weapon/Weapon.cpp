@@ -10,6 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Shoot/PlayerController/ShootPlayerController.h"
 
 AWeapon::AWeapon()
 {
@@ -66,6 +67,35 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+	if (Owner == nullptr)
+	{
+		ShootOwnerCharacter = nullptr;
+		ShootOwnerController = nullptr;
+	}
+	else
+	{
+		// To ensure SetHUDAmmo() after Owner Replicated.
+		SetHUDAmmo();
+	}
+}
+
+void AWeapon::SetHUDAmmo()
+{
+	ShootOwnerCharacter = ShootOwnerCharacter == nullptr ? Cast<AShootCharacter>(GetOwner()) : ShootOwnerCharacter;
+	if (ShootOwnerCharacter)
+	{
+		ShootOwnerController = ShootOwnerController == nullptr ? Cast<AShootPlayerController>(ShootOwnerCharacter->Controller) : ShootOwnerController;
+		if (ShootOwnerController)
+		{
+			ShootOwnerController->SetHUDWeaponAmmo(Ammo);
+		}
+	}
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -109,6 +139,18 @@ void AWeapon::OnRep_WeaponState()
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
 	}
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	ShootOwnerCharacter = ShootOwnerCharacter == nullptr ? Cast<AShootCharacter>(GetOwner()) : ShootOwnerCharacter;
+	SetHUDAmmo();
+}
+
+void AWeapon::SpendRound()
+{
+	--Ammo;
+	SetHUDAmmo();
 }
 
 void AWeapon::SetWeaponState(EWeaponState State)
@@ -168,6 +210,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
+	SpendRound();
 }
 
 void AWeapon::Dropped()
@@ -176,5 +219,7 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
+	ShootOwnerCharacter = nullptr;
+	ShootOwnerController = nullptr;
 }
 
