@@ -19,6 +19,7 @@
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Shoot/PlayerState/ShootPlayerState.h"
+#include "Shoot/Weapon/WeaponTypes.h"
 
 AShootCharacter::AShootCharacter()
 {
@@ -98,6 +99,26 @@ void AShootCharacter::PlayElimMontage()
 	if (AnimInstace && ElimMontage)
 	{
 		AnimInstace->Montage_Play(ElimMontage);
+	}
+}
+
+void AShootCharacter::PlayReloadMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
+
+	UAnimInstance* AnimInstace = GetMesh()->GetAnimInstance();
+	if (AnimInstace && ReloadMontage)
+	{
+		AnimInstace->Montage_Play(ReloadMontage);
+
+		FName SectionName;
+		switch (Combat->EquippedWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("Rifle");
+			break;
+		}
+		AnimInstace->Montage_JumpToSection(SectionName);
 	}
 }
 
@@ -201,6 +222,7 @@ void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &AShootCharacter::AimButtonReleased);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AShootCharacter::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AShootCharacter::FireButtonReleased);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShootCharacter::ReloadButtonPressed);
 
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShootCharacter::MoveForward);
@@ -308,6 +330,14 @@ void AShootCharacter::FireButtonReleased()
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
+	}
+}
+
+void AShootCharacter::ReloadButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->Reload();
 	}
 }
 
@@ -633,5 +663,11 @@ FVector AShootCharacter::GetHitTarget() const
 {
 	if (Combat == nullptr) return FVector();
 	return Combat->HitTarget;
+}
+
+ECombatState AShootCharacter::GetCombatState() const
+{
+	if (Combat == nullptr) return ECombatState::ECS_MAX;
+	return Combat->CombatState;
 }
 

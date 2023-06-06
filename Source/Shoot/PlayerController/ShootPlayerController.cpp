@@ -63,6 +63,19 @@ void AShootPlayerController::SetHUDWeaponAmmo(int32 Ammo)
 	}
 }
 
+void AShootPlayerController::SetHUDCarriedAmmo(int32 Ammo)
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	bool bHUDValid = ShootHUD &&
+		ShootHUD->CharacterOverlay &&
+		ShootHUD->CharacterOverlay->CarriedAmmoAmount;
+	if (bHUDValid)
+	{
+		FString carriedAmmoText = FString::Printf(TEXT("%d"), Ammo);
+		ShootHUD->CharacterOverlay->CarriedAmmoAmount->SetText(FText::FromString(carriedAmmoText));
+	}
+}
+
 void AShootPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);

@@ -6,6 +6,7 @@
 #include "GameFramework\CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Shoot/Weapon/Weapon.h"
+#include "Shoot/ShootTypes/CombatState.h"
 
 void UShootAnimInstance::NativeInitializeAnimation()
 {
@@ -85,4 +86,6 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), MuzzleTipTransform.GetLocation() + MuzzleX * 1000, FColor::Red);
 		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), ShootCharacter->GetHitTarget(), FColor::Orange);
 	}
+
+	bUseFABRIK = ShootCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }

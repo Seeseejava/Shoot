@@ -7,6 +7,7 @@
 #include "Shoot/ShootTypes/TurningInPlace.h"
 #include "Shoot/Interfaces/InteractWithCrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
+#include "Shoot/ShootTypes/CombatState.h"
 #include "ShootCharacter.generated.h"
 
 UCLASS()
@@ -25,6 +26,7 @@ public:
 
 	void PlayFireMontage(bool bAiming);
 	void PlayElimMontage();
+	void PlayReloadMontage();
 
 	virtual void OnRep_ReplicatedMovement() override;
 
@@ -53,6 +55,7 @@ protected:
 	void AimButtonReleased();
 	void FireButtonPressed();
 	void FireButtonReleased();
+	void ReloadButtonPressed();
 
 	void AimOffset(float DeltaTime);
 	void CalculateAO_Pitch();
@@ -78,7 +81,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);  // Rep notify do not call on the server! And its parameter can only be the one who will be replicated
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 
 	UFUNCTION(Server, Reliable)
@@ -92,6 +95,9 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
+	/**
+	 * Animation Montages
+	 */
 	UPROPERTY(EditAnywhere, Category = combat)
 	class UAnimMontage* FireWeaponMontage;
 
@@ -100,6 +106,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = combat)
 	UAnimMontage* ElimMontage;
+
+	UPROPERTY(EditAnywhere, Category = combat)
+	UAnimMontage* ReloadMontage;
 
 	void HideCameraIfCharacterClose();
 
@@ -194,4 +203,5 @@ public:
 	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	ECombatState GetCombatState() const;
 };
