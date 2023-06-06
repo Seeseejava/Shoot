@@ -141,4 +141,7 @@ public:
 	float FireDelay = .15f;
 	UPROPERTY(EditAnywhere, Category = Combat)
 	bool bAutomatic = true;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* EquipSound;
 };

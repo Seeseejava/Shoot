@@ -88,4 +88,7 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	}
 
 	bUseFABRIK = ShootCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bUseAimOffsets = ShootCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+	bTransformRightHand = ShootCharacter->GetCombatState() != ECombatState::ECS_Reloading;
+
 }
