@@ -76,6 +76,21 @@ void AShootPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	}
 }
 
+void AShootPlayerController::SetHUDMatchCountdown(float CountdownTime)
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	bool bHUDValid = ShootHUD &&
+		ShootHUD->CharacterOverlay &&
+		ShootHUD->CharacterOverlay->MatchCountdownText;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		ShootHUD->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(CountdownText));
+	}
+}
+
 void AShootPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -93,4 +108,22 @@ void AShootPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	ShootHUD = Cast<AShootHUD>(GetHUD());
+}
+
+void AShootPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetHUDTime();
+}
+
+
+void AShootPlayerController::SetHUDTime()
+{
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	if (CountdownInt != SecondsLeft)
+	{
+		SetHUDMatchCountdown(MatchTime - GetWorld()->GetTimeSeconds());
+	}
+	CountdownInt = SecondsLeft;
 }
