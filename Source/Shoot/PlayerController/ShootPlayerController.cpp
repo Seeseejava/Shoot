@@ -10,6 +10,7 @@
 #include "Shoot/Character/ShootCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "Shoot/GameMode/ShootGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -111,6 +112,22 @@ void AShootPlayerController::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
+void AShootPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	bool bHUDValid = ShootHUD &&
+		ShootHUD->Announcement &&
+		ShootHUD->Announcement->WarmupTime;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		ShootHUD->Announcement->WarmupTime->SetText(FText::FromString(CountdownText));
+	}
+}
+
 void AShootPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -127,11 +144,9 @@ void AShootPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+
 	ShootHUD = Cast<AShootHUD>(GetHUD());
-	if (ShootHUD)
-	{
-		ShootHUD->AddAnnouncement();
-	}
+	ServerCheckMatchState();
 }
 
 void AShootPlayerController::Tick(float DeltaTime)
@@ -161,8 +176,33 @@ void AShootPlayerController::CheckTimeSync(float DeltaTime)
 	}
 }
 
+void AShootPlayerController::ServerCheckMatchState_Implementation()
+{
+	AShootGameMode* GameMode = Cast<AShootGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GameMode)
+	{
+		WarmupTime = GameMode->WarmupTime;
+		MatchTime = GameMode->MatchTime;
+		LevelStartingTime = GameMode->LevelStartingTime;
+		MatchState = GameMode->GetMatchState();
 
+		ClientJoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
 
+	}
+}
+
+void AShootPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+{
+	WarmupTime = Warmup;
+	MatchTime = Match;
+	LevelStartingTime = StartingTime;
+	MatchState = StateOfMatch;
+	OnMatchStateSet(MatchState); // For this may happed after replicate.
+	if (ShootHUD && MatchState == MatchState::WaitingToStart)
+	{
+		ShootHUD->AddAnnouncement();
+	}
+}
 
 float AShootPlayerController::GetServerTime()
 {
@@ -232,10 +272,20 @@ void AShootPlayerController::PollInit()
 
 void AShootPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	float TimeLeft = 0.f;
+	if (MatchState == MatchState::WaitingToStart) TimeLeft = WarmupTime - (GetServerTime() - LevelStartingTime);
+	else if (MatchState == MatchState::InProgress) TimeLeft = WarmupTime + MatchTime - (GetServerTime() - LevelStartingTime);
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountdownInt != SecondsLeft)
 	{
-		SetHUDMatchCountdown(MatchTime - GetServerTime());
+		if (MatchState == MatchState::WaitingToStart)
+		{
+			SetHUDAnnouncementCountdown(TimeLeft);
+		}
+		if (MatchState == MatchState::InProgress)
+		{
+			SetHUDMatchCountdown(TimeLeft);
+		}
 	}
 	CountdownInt = SecondsLeft;
 }
