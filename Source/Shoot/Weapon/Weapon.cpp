@@ -37,9 +37,6 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-	
 	// if (GetLocalRole() == ENetRole::ROLE_Authority)
 	if (HasAuthority())
 	{

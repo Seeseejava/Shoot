@@ -328,7 +328,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		FHitResult HitResult;
 		TraceUnderCrosshairs(HitResult);
-		HitTarget = HitResult.ImpactPoint;
+		HitTarget = HitResult.TraceEnd;
+		// UE_LOG(LogTemp, Warning, TEXT("HitTarget: %f, %f, %f"), HitTarget.X, HitTarget.Y, HitTarget.Z);
 
 		SetHUDCrosshairs(DeltaTime);
 		InterpFOV(DeltaTime);
