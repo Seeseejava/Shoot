@@ -543,6 +543,10 @@ void AShootCharacter::MulticastElim_Implementation()
 	GetCharacterMovement()->DisableMovement();          // For moving
 	GetCharacterMovement()->StopMovementImmediately();	// For Rotating
 	bDisableGameplay = true;
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -575,11 +579,13 @@ void AShootCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
-	// This will cause weapon loss.
-	//if (Combat && Combat->EquippedWeapon)
-	//{
-	//	Combat->EquippedWeapon->Destroy();
-	//}
+
+	AShootGameMode* ShootGameMode = Cast<AShootGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = ShootGameMode && ShootGameMode->GetMatchState() != MatchState::InProgress;
+	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
 }
 
 void AShootCharacter::ElimTimerFinished()

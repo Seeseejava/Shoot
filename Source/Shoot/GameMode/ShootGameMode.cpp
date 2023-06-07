@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "Shoot/PlayerState/ShootPlayerState.h"
+#include "Shoot/GameState/ShootGameState.h"
 
 namespace MatchState
 {
@@ -18,7 +19,6 @@ AShootGameMode::AShootGameMode()
 	bDelayedStart = true;
 }
 
-
 void AShootGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,9 +26,6 @@ void AShootGameMode::BeginPlay()
 	// Time of joining in the ShootingMap
 	LevelStartingTime = GetWorld()->GetTimeSeconds();
 }
-
-
-
 
 void AShootGameMode::Tick(float DeltaTime)
 {
@@ -79,9 +76,11 @@ void AShootGameMode::PlayerEliminated(class AShootCharacter* ElimmedCharacter, c
 	AShootPlayerState* AttackerPlayerState = AttackerController ? Cast<AShootPlayerState>(AttackerController->PlayerState) : nullptr;
 	AShootPlayerState* VictimPlayerState = VictimController ? Cast<AShootPlayerState>(VictimController->PlayerState) : nullptr;
 	
-	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
+	AShootGameState* ShootGameState = GetGameState<AShootGameState>();
+	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState && ShootGameState)
 	{
 		AttackerPlayerState->AddToScore(1.f);
+		ShootGameState->UpdateTopScore(AttackerPlayerState);
 	}
 
 	if (VictimPlayerState)

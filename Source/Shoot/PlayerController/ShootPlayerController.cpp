@@ -12,6 +12,8 @@
 #include "Shoot/GameMode/ShootGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Shoot/ShootComponents/CombatComponent.h"
+#include "Shoot/GameState/ShootGameState.h"
+#include "Shoot/PlayerState/ShootPlayerState.h"
 
 void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -29,7 +31,7 @@ void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 	else
 	{
-		// CharacterOverlay not initialze until now
+		// CharacterOverlay not initialize until now
 		bInitializeCharacterOverlay = true;
 		HUDHealth = Health;
 		HUDMaxHealth = MaxHealth;
@@ -290,7 +292,35 @@ void AShootPlayerController::HandleCooldown()
 			FString AnnouncementText("New Match Starts In:");
 			ShootHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 
-			ShootHUD->Announcement->InfoText->SetText(FText());
+			AShootGameState* ShootGameState = Cast<AShootGameState>(UGameplayStatics::GetGameState(this));
+			AShootPlayerState* ShootPlayerState = GetPlayerState<AShootPlayerState>();
+			if (ShootGameState && ShootPlayerState)
+			{
+				TArray<AShootPlayerState*> TopPlayers = ShootGameState->TopScoringPlayers;
+				FString InfoTextString;
+				if (TopPlayers.Num() == 0)
+				{
+					InfoTextString = FString("There is no winner.");
+				}
+				else if (TopPlayers.Num() == 1 && TopPlayers[0] == ShootPlayerState)
+				{
+					InfoTextString = FString("You are the winner.");
+				}
+				else if (TopPlayers.Num() == 1)
+				{
+					InfoTextString = FString::Printf(TEXT("Winner: \n%s"), *TopPlayers[0]->GetPlayerName());
+				}
+				else if (TopPlayers.Num() > 1)
+				{
+					InfoTextString = FString("Players tied for the win: \n");
+					for (auto TiedPlayer : TopPlayers)
+					{
+						InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+					}
+				}
+				ShootHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
+			}
+
 		}
 	}
 	AShootCharacter* ShootCharacter = Cast<AShootCharacter>(GetPawn());
