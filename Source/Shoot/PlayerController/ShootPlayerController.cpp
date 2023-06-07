@@ -4,6 +4,7 @@
 #include "ShootPlayerController.h"
 #include "Shoot/HUD/ShootHUD.h"
 #include "Shoot/HUD/CharacterOverlay.h"
+#include "Shoot/HUD/Announcement.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Shoot/Character/ShootCharacter.h"
@@ -127,6 +128,10 @@ void AShootPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	ShootHUD = Cast<AShootHUD>(GetHUD());
+	if (ShootHUD)
+	{
+		ShootHUD->AddAnnouncement();
+	}
 }
 
 void AShootPlayerController::Tick(float DeltaTime)
@@ -174,29 +179,36 @@ void AShootPlayerController::ReceivedPlayer()
 	}
 }
 
-// called only on the server. Beacuse GameMode calls it.
+// called only on the server. Because GameMode calls it.
 void AShootPlayerController::OnMatchStateSet(FName State)
 {
 	MatchState = State;
 
 	if (MatchState == MatchState::InProgress)
 	{
-		ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
-		if (ShootHUD)
-		{
-			ShootHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 	}
 }
+
+
 
 void AShootPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
-		if (ShootHUD)
+		HandleMatchHasStarted();
+	}
+}
+
+void AShootPlayerController::HandleMatchHasStarted()
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	if (ShootHUD)
+	{
+		ShootHUD->AddCharacterOverlay();
+		if (ShootHUD->Announcement)
 		{
-			ShootHUD->AddCharacterOverlay();
+			ShootHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
