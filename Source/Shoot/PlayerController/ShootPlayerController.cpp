@@ -11,6 +11,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Shoot/GameMode/ShootGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Shoot/ShootComponents/CombatComponent.h"
 
 void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -291,6 +292,12 @@ void AShootPlayerController::HandleCooldown()
 
 			ShootHUD->Announcement->InfoText->SetText(FText());
 		}
+	}
+	AShootCharacter* ShootCharacter = Cast<AShootCharacter>(GetPawn());
+	if (ShootCharacter && ShootCharacter->GetCombat())
+	{
+		ShootCharacter->bDisableGameplay = true;
+		ShootCharacter->GetCombat()->FireButtonPressed(false);
 	}
 }
 

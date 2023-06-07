@@ -66,6 +66,7 @@ void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 	DOREPLIFETIME_CONDITION(AShootCharacter, OverlappingWeapon, COND_OwnerOnly); // need include  "Net/UnrealNetwork.h"
 	DOREPLIFETIME(AShootCharacter, Health);
+	DOREPLIFETIME(AShootCharacter, bDisableGameplay);
 }
 
 
@@ -193,6 +194,19 @@ void AShootCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	RotateInPlace(DeltaTime);
+
+	HideCameraIfCharacterClose();
+	PollInit();
+}
+
+void AShootCharacter::RotateInPlace(float DeltaTime)
+{
+	if (bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+	}
 	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		AimOffset(DeltaTime);
@@ -206,9 +220,9 @@ void AShootCharacter::Tick(float DeltaTime)
 		}
 		CalculateAO_Pitch();
 	}
-	HideCameraIfCharacterClose();
-	PollInit();
 }
+
+
 
 void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -236,6 +250,7 @@ void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void AShootCharacter::MoveForward(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -246,6 +261,7 @@ void AShootCharacter::MoveForward(float Value)
 
 void AShootCharacter::MoveRight(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -266,6 +282,7 @@ void AShootCharacter::LookUp(float Value)
 
 void AShootCharacter::Jump()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -278,6 +295,7 @@ void AShootCharacter::Jump()
 
 void AShootCharacter::EquipButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		if (HasAuthority())
@@ -293,16 +311,19 @@ void AShootCharacter::EquipButtonPressed()
 
 void AShootCharacter::CrouchButtonPressed()
 {
+	if (bDisableGameplay) return;
 	Crouch();
 }
 
 void AShootCharacter::CrouchButtonReleased()
 {
+	if (bDisableGameplay) return;
 	UnCrouch();
 }
 
 void AShootCharacter::AimButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(true);
@@ -311,6 +332,7 @@ void AShootCharacter::AimButtonPressed()
 
 void AShootCharacter::AimButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(false);
@@ -319,6 +341,7 @@ void AShootCharacter::AimButtonReleased()
 
 void AShootCharacter::FireButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(true);
@@ -327,6 +350,7 @@ void AShootCharacter::FireButtonPressed()
 
 void AShootCharacter::FireButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
@@ -335,6 +359,7 @@ void AShootCharacter::FireButtonReleased()
 
 void AShootCharacter::ReloadButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->Reload();
@@ -517,10 +542,7 @@ void AShootCharacter::MulticastElim_Implementation()
 	// Disable character movement
 	GetCharacterMovement()->DisableMovement();          // For moving
 	GetCharacterMovement()->StopMovementImmediately();	// For Rotating
-	if (ShootPlayerController)
-	{
-		DisableInput(ShootPlayerController);
-	}
+	bDisableGameplay = true;
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -553,6 +575,11 @@ void AShootCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
+	// This will cause weapon loss.
+	//if (Combat && Combat->EquippedWeapon)
+	//{
+	//	Combat->EquippedWeapon->Destroy();
+	//}
 }
 
 void AShootCharacter::ElimTimerFinished()
