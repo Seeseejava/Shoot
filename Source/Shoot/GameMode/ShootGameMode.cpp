@@ -8,6 +8,35 @@
 #include "GameFramework/PlayerStart.h"
 #include "Shoot/PlayerState/ShootPlayerState.h"
 
+AShootGameMode::AShootGameMode()
+{
+	bDelayedStart = true;
+}
+
+
+void AShootGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Time of joining in the ShootingMap
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+
+void AShootGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		CountdownTime = WarmupTime - (GetWorld()->GetTimeSeconds() - LevelStartingTime);
+		if (CountdownTime <= 0.f)
+		{
+			StartMatch();
+		}
+	}
+}
+
 void AShootGameMode::PlayerEliminated(class AShootCharacter* ElimmedCharacter, class AShootPlayerController* VictimController, AShootPlayerController* AttackerController)
 {
 	AShootPlayerState* AttackerPlayerState = AttackerController ? Cast<AShootPlayerState>(AttackerController->PlayerState) : nullptr;
