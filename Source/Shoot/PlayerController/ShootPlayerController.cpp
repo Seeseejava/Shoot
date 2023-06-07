@@ -228,6 +228,10 @@ void AShootPlayerController::OnMatchStateSet(FName State)
 	{
 		HandleMatchHasStarted();
 	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
+	}
 }
 
 
@@ -237,6 +241,10 @@ void AShootPlayerController::OnRep_MatchState()
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();
+	}
+	else if (MatchState == MatchState::Cooldown)
+	{
+		HandleCooldown();
 	}
 }
 
@@ -249,6 +257,19 @@ void AShootPlayerController::HandleMatchHasStarted()
 		if (ShootHUD->Announcement)
 		{
 			ShootHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+void AShootPlayerController::HandleCooldown()
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	if (ShootHUD)
+	{
+		ShootHUD->CharacterOverlay->RemoveFromParent();
+		if (ShootHUD->Announcement)
+		{
+			ShootHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }
