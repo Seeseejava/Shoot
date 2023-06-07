@@ -23,6 +23,8 @@ void AShootGameMode::BeginPlay()
 }
 
 
+
+
 void AShootGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -33,6 +35,20 @@ void AShootGameMode::Tick(float DeltaTime)
 		if (CountdownTime <= 0.f)
 		{
 			StartMatch();
+		}
+	}
+}
+
+void AShootGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AShootPlayerController* ShootPlayer = Cast<AShootPlayerController>(*It);
+		if (ShootPlayer)
+		{
+			ShootPlayer->OnMatchStateSet(MatchState);
 		}
 	}
 }

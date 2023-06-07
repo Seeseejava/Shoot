@@ -47,8 +47,6 @@ void AShootHUD::DrawHUD()
 void AShootHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AddCharacterOverlay();
 }
 
 void AShootHUD::AddCharacterOverlay()

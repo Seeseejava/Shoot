@@ -7,6 +7,8 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Shoot/Character/ShootCharacter.h"
+#include "Net/UnrealNetwork.h"
+#include "Shoot/GameMode/ShootGameMode.h"
 
 void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
@@ -22,6 +24,13 @@ void AShootPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		ShootHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 	}
+	else
+	{
+		// CharacterOverlay not initialze until now
+		bInitializeCharacterOverlay = true;
+		HUDHealth = Health;
+		HUDMaxHealth = MaxHealth;
+	}
 }
 
 void AShootPlayerController::SetHUDScore(float Score)
@@ -35,6 +44,11 @@ void AShootPlayerController::SetHUDScore(float Score)
 		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
 		ShootHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDScore = Score;
+	}
 }
 
 void AShootPlayerController::SetHUDDefeats(int32 Defeats)
@@ -47,6 +61,11 @@ void AShootPlayerController::SetHUDDefeats(int32 Defeats)
 	{
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
 		ShootHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
+	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDDefeats = Defeats;
 	}
 }
 
@@ -117,6 +136,14 @@ void AShootPlayerController::Tick(float DeltaTime)
 	SetHUDTime();
 
 	CheckTimeSync(DeltaTime);
+	PollInit();
+}
+
+void AShootPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AShootPlayerController, MatchState);
 }
 
 void AShootPlayerController::CheckTimeSync(float DeltaTime)
@@ -128,6 +155,8 @@ void AShootPlayerController::CheckTimeSync(float DeltaTime)
 		TimeSyncRunningTime = 0.f;
 	}
 }
+
+
 
 
 float AShootPlayerController::GetServerTime()
@@ -142,6 +171,50 @@ void AShootPlayerController::ReceivedPlayer()
 	if (IsLocalController())
 	{
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+
+// called only on the server. Beacuse GameMode calls it.
+void AShootPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+		if (ShootHUD)
+		{
+			ShootHUD->AddCharacterOverlay();
+		}
+	}
+}
+
+void AShootPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+		if (ShootHUD)
+		{
+			ShootHUD->AddCharacterOverlay();
+		}
+	}
+}
+
+void AShootPlayerController::PollInit()
+{
+	if (CharacterOverlay == nullptr)
+	{
+		if (ShootHUD && ShootHUD->CharacterOverlay)
+		{
+			CharacterOverlay = ShootHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				SetHUDHealth(HUDHealth, HUDMaxHealth);
+				SetHUDScore(HUDScore);
+				SetHUDDefeats(HUDDefeats);
+			}
+		}
 	}
 }
 
