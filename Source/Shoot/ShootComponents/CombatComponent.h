@@ -9,7 +9,7 @@
 #include "Shoot/ShootTypes/CombatState.h"
 #include "CombatComponent.generated.h"
 
-#define  TRACE_LENGTH 80000
+#define  TRACE_LENGTH 10000
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOT_API UCombatComponent : public UActorComponent
