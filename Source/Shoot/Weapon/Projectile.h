@@ -33,12 +33,13 @@ protected:
 	class USoundCue* ImpactSound;
 
 	UPROPERTY(EditAnywhere)
-	class UBoxComponent* CollisionBox;
+	class UBoxComponent* CollisionBox;	
+	UPROPERTY(VisibleAnywhere)
+	class UProjectileMovementComponent* ProjectileMovementcomponent;
 private:
 
 
-	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementcomponent;
+
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Tracer;

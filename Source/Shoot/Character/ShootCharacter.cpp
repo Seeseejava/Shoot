@@ -118,6 +118,9 @@ void AShootCharacter::PlayReloadMontage()
 		case EWeaponType::EWT_AssaultRifle:
 			SectionName = FName("Rifle");
 			break;
+		case EWeaponType::EWT_RocketLauncher:
+			SectionName = FName("Rifle");
+			break;
 		}
 		AnimInstace->Montage_JumpToSection(SectionName);
 	}
