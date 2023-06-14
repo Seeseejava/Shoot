@@ -49,6 +49,7 @@ void UCombatComponent::BeginPlay()
 
 void UCombatComponent::SetAiming(bool bIsAiming)
 {
+	if (Character == nullptr || EquippedWeapon == nullptr) return;
 	bAiming = bIsAiming;  // 如果没有这句话，我们需要等待RPC到达服务器
 	// 一样的效果，因为ServerSetAiming会再server上执行
 	//if (!Character->HasAuthority())
@@ -61,6 +62,11 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 	{
 		Character->GetCharacterMovement()->MaxWalkSpeed = bAiming ? AimWalkSpeed : BaseWalkSpeed;
 	}
+	if (Character->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	{
+		Character->ShowSniperScopeWidget(bIsAiming);
+	}
+
 }
 
 void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
