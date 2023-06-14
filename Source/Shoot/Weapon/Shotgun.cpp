@@ -22,9 +22,58 @@ void AShotgun::Fire(const FVector& HitTarget)
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		FVector Start = SocketTransform.GetLocation();
 
+		TMap<AShootCharacter*, uint32> HitMap;
 		for (uint32 i = 0; i < NumberOfPellets; i++)
 		{
-			FVector End = TraceEndWithScatter(Start, HitTarget);
+			FHitResult FireHit;
+			WeaponTraceHit(Start, HitTarget, FireHit);
+
+			AShootCharacter* ShootCharacter = Cast<AShootCharacter>(FireHit.GetActor());
+			if (ShootCharacter && HasAuthority() && InstigatorController)
+			{
+
+				if (HitMap.Contains(ShootCharacter))
+				{
+					HitMap[ShootCharacter]++;
+				}
+				else
+				{
+					HitMap.Emplace(ShootCharacter, 1);
+				}
+			}
+
+			if (ImpactParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(
+					GetWorld(),
+					ImpactParticles,
+					FireHit.ImpactPoint,
+					FireHit.ImpactNormal.Rotation()
+				);
+			}
+			if (HitSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(
+					this,
+					HitSound,
+					FireHit.ImpactPoint,
+					.5f,
+					FMath::FRandRange(-0.5, 0.5f)
+				);
+			}
+		}
+		for (auto HitPair : HitMap)
+		{
+			if (HitPair.Key && HasAuthority() && InstigatorController)
+			{
+				UGameplayStatics::ApplyDamage(
+					HitPair.Key,
+					HitPair.Value * Damage,
+					InstigatorController,
+					this,
+					UDamageType::StaticClass()
+				);
+			}
 		}
 	}
 
