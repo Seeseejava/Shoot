@@ -9,7 +9,7 @@
 #include "Shoot/ShootTypes/CombatState.h"
 #include "CombatComponent.generated.h"
 
-#define  TRACE_LENGTH 10000
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOT_API UCombatComponent : public UActorComponent
@@ -144,6 +144,8 @@ private:
 	int32 StartingPistolAmmo = 0;
 	UPROPERTY(EditAnywhere)
 	int32 StartingSMGAmmo = 0;
+	UPROPERTY(EditAnywhere)
+	int32 StartingShotgunAmmo = 0;
 	void InitializeCarriedAmmo();
 
 	UPROPERTY(ReplicatedUsing = OnRep_CombatState)

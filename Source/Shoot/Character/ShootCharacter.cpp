@@ -127,6 +127,9 @@ void AShootCharacter::PlayReloadMontage()
 		case EWeaponType::EWT_SMG:
 			SectionName = FName("Rifle");
 			break;
+		case EWeaponType::EWT_ShotGun:
+			SectionName = FName("Rifle");
+			break;
 		}
 		AnimInstace->Montage_JumpToSection(SectionName);
 	}
