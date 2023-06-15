@@ -11,6 +11,7 @@
 #include "Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Shoot/PlayerController/ShootPlayerController.h"
+#include "Shoot/ShootComponents/CombatComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -151,6 +152,10 @@ void AWeapon::OnRep_WeaponState()
 void AWeapon::OnRep_Ammo()
 {
 	ShootOwnerCharacter = ShootOwnerCharacter == nullptr ? Cast<AShootCharacter>(GetOwner()) : ShootOwnerCharacter;
+	if (ShootOwnerCharacter && ShootOwnerCharacter->GetCombat() && IsFull())
+	{
+		ShootOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+	}
 	SetHUDAmmo();
 }
 
@@ -196,6 +201,11 @@ void AWeapon::SetWeaponState(EWeaponState State)
 bool AWeapon::IsEmpty()
 {
 	return Ammo <= 0;
+}
+
+bool AWeapon::IsFull()
+{
+	return Ammo == MagCapacity;
 }
 
 void AWeapon::ShowPickupWidget(bool bShowWidget)
