@@ -141,6 +141,15 @@ void AShootCharacter::PlayReloadMontage()
 	}
 }
 
+void AShootCharacter::PlayThrowGrenadeMontage()
+{
+	UAnimInstance* AnimInstace = GetMesh()->GetAnimInstance();
+	if (AnimInstace && ThrowGrenadeMontage)
+	{
+		AnimInstace->Montage_Play(ThrowGrenadeMontage);
+	}
+}
+
 void AShootCharacter::PlayHitReactMontage()
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
@@ -255,6 +264,7 @@ void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AShootCharacter::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AShootCharacter::FireButtonReleased);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShootCharacter::ReloadButtonPressed);
+	PlayerInputComponent->BindAction("ThrowGrenade", IE_Pressed, this, &AShootCharacter::GrenadeButtonPressed);
 
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShootCharacter::MoveForward);
@@ -381,6 +391,14 @@ void AShootCharacter::ReloadButtonPressed()
 	if (Combat)
 	{
 		Combat->Reload();
+	}
+}
+
+void AShootCharacter::GrenadeButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->ThrowGrenade();
 	}
 }
 

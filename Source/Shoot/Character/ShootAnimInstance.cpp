@@ -87,8 +87,8 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), ShootCharacter->GetHitTarget(), FColor::Orange);
 	}
 
-	bUseFABRIK = ShootCharacter->GetCombatState() != ECombatState::ECS_Reloading;
-	bUseAimOffsets = ShootCharacter->GetCombatState() != ECombatState::ECS_Reloading && !ShootCharacter->GetDisableGameplay();
-	bTransformRightHand = ShootCharacter->GetCombatState() != ECombatState::ECS_Reloading && !ShootCharacter->GetDisableGameplay();
+	bUseFABRIK = ShootCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+	bUseAimOffsets = ShootCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !ShootCharacter->GetDisableGameplay();
+	bTransformRightHand = ShootCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !ShootCharacter->GetDisableGameplay();
 
 }
