@@ -196,6 +196,10 @@ void AShootCharacter::BeginPlay()
 	{
 		OnTakeAnyDamage.AddDynamic(this, &AShootCharacter::ReceiveDamage);
 	}
+	if (AttachedGrenade)
+	{
+		AttachedGrenade->SetVisibility(false);
+	}
 }
 
 void AShootCharacter::UpdateHUDHealth()
