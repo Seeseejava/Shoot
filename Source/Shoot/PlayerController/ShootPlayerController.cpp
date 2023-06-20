@@ -142,6 +142,23 @@ void AShootPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 	}
 }
 
+void AShootPlayerController::SetHUDGrenades(int32 Grenades)
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	bool bHUDValid = ShootHUD &&
+		ShootHUD->CharacterOverlay &&
+		ShootHUD->CharacterOverlay->GrenadesText;
+	if (bHUDValid)
+	{
+		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades);
+		ShootHUD->CharacterOverlay->GrenadesText->SetText(FText::FromString(GrenadesText));
+	}
+	else
+	{
+		HUDGrenades = Grenades;
+	}
+}
+
 void AShootPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -343,6 +360,12 @@ void AShootPlayerController::PollInit()
 				SetHUDHealth(HUDHealth, HUDMaxHealth);
 				SetHUDScore(HUDScore);
 				SetHUDDefeats(HUDDefeats);
+
+				AShootCharacter* ShootCharacter = Cast<AShootCharacter>(GetPawn());
+				if (ShootCharacter && ShootCharacter->GetCombat())
+				{
+					SetHUDGrenades(ShootCharacter->GetCombat()->GetGrenades());
+				}
 			}
 		}
 	}
