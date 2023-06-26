@@ -74,6 +74,7 @@ void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 	DOREPLIFETIME_CONDITION(AShootCharacter, OverlappingWeapon, COND_OwnerOnly); // need include  "Net/UnrealNetwork.h"
 	DOREPLIFETIME(AShootCharacter, Health);
+	DOREPLIFETIME(AShootCharacter, Shield);
 	DOREPLIFETIME(AShootCharacter, bDisableGameplay);
 }
 
@@ -181,8 +182,25 @@ void AShootCharacter::PlayHitReactMontage()
 void AShootCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser)
 {
 	if (bElimmed) return;
-	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
+
+	float DamageToHealth = Damage;
+	if (Shield > 0.f)
+	{
+		if (Shield >= Damage)
+		{
+			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+			DamageToHealth = 0.f;
+		}
+		else
+		{
+			Shield = 0.f;
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+		}
+	}
+
+	Health = FMath::Clamp(Health - DamageToHealth, 0.0f, MaxHealth);
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	PlayHitReactMontage();
 
 	if(Health == 0.f)
@@ -202,6 +220,7 @@ void AShootCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	
 	if (HasAuthority())
 	{
@@ -219,6 +238,15 @@ void AShootCharacter::UpdateHUDHealth()
 	if (ShootPlayerController)
 	{
 		ShootPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void AShootCharacter::UpdateHUDShield()
+{
+	ShootPlayerController = ShootPlayerController == nullptr ? Cast<AShootPlayerController>(Controller) : ShootPlayerController;
+	if (ShootPlayerController)
+	{
+		ShootPlayerController->SetHUDShield(Shield, MaxShield);
 	}
 }
 
@@ -724,7 +752,14 @@ void AShootCharacter::OnRep_Health(float LastHealth)
 	}
 }
 
-
+void AShootCharacter::OnRep_Shield(float LastShield)
+{
+	UpdateHUDShield();
+	if (Shield < LastShield)
+	{
+		PlayHitReactMontage();
+	}
+}
 
 void AShootCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
