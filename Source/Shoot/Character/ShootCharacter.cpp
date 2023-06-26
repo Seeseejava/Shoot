@@ -713,10 +713,13 @@ float AShootCharacter::CalculateSpeed()
 	return Velocity.Size();
 }
 
-void AShootCharacter::OnRep_Health()
+void AShootCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
-	PlayHitReactMontage();
+	if (Health < LastHealth)
+	{
+		PlayHitReactMontage();
+	}
 }
 
 
