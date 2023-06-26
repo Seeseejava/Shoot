@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Shoot/Weapon/Weapon.h"
 #include "Shoot/ShootComponents/CombatComponent.h"
+#include "Shoot/ShootComponents/BuffComponent.h"
 #include "Components\CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "ShootAnimInstance.h"
@@ -46,6 +47,9 @@ AShootCharacter::AShootCharacter()
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);  // This Component is repliated itself and it does not need to be register
 
+	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
+	Buff->SetIsReplicated(true); 
+
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	// do not block camera
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
@@ -81,6 +85,10 @@ void AShootCharacter::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character = this;
+	}
+	if (Buff)
+	{
+		Buff->Character = this;
 	}
 }
 

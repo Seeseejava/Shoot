@@ -94,6 +94,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 
+	UPROPERTY(VisibleAnywhere)
+	class UBuffComponent* Buff;
+
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // 客户端告诉服务端做什么
 
