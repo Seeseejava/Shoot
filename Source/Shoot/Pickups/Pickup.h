@@ -46,6 +46,11 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* PickupEffect;
+
+	// 为了解决人站在上面buff不重生的问题
+	FTimerHandle BindOverlapTimer;
+	float BindOverlapTime = 0.25f;
+	void BindOverlapTimerFinished();
 public:	
 
 
