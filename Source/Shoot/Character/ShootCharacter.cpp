@@ -218,6 +218,8 @@ void AShootCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UD
 void AShootCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	SpawnDefaultWeapon();
+	UpdateHUDAmmo();
 
 	UpdateHUDHealth();
 	UpdateHUDShield();
@@ -247,6 +249,31 @@ void AShootCharacter::UpdateHUDShield()
 	if (ShootPlayerController)
 	{
 		ShootPlayerController->SetHUDShield(Shield, MaxShield);
+	}
+}
+
+void AShootCharacter::UpdateHUDAmmo()
+{
+	ShootPlayerController = ShootPlayerController == nullptr ? Cast<AShootPlayerController>(Controller) : ShootPlayerController;
+	if (ShootPlayerController && Combat && Combat->EquippedWeapon)
+	{
+		ShootPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+		ShootPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+	}
+}
+
+void AShootCharacter::SpawnDefaultWeapon()
+{
+	AShootGameMode* ShootGameMode = Cast<AShootGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (ShootGameMode && World && !bElimmed && DefaultWeaponClass)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bDestroyWeapon = true;
+		if (Combat)
+		{
+			Combat->EquipWeapon(StartingWeapon);
+		}
 	}
 }
 
@@ -584,7 +611,14 @@ void AShootCharacter::Elim()
 {
 	if (Combat && Combat->EquippedWeapon)
 	{
-		Combat->EquippedWeapon->Dropped();
+		if (Combat->EquippedWeapon->bDestroyWeapon)
+		{
+			Combat->EquippedWeapon->Destroy();
+		}
+		else
+		{
+			Combat->EquippedWeapon->Dropped();
+		}
 	}
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
