@@ -15,7 +15,7 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOT_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
+		
 public:	
 
 	UCombatComponent();
@@ -65,6 +65,7 @@ protected:
 	void OnRep_SecondaryWeapon();
 
 	void Fire();
+	void LocalFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(Server, Reliable)
 	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
