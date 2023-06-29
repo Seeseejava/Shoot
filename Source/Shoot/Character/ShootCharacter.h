@@ -48,6 +48,9 @@ public:
 	void UpdateHUDAmmo();
 
 	void SpawnDefaultWeapon();
+
+	UPROPERTY()
+	TMap<FName, class UBoxComponent*> HitCollisionBoxes;
 protected:
 
 	virtual void BeginPlay() override;
@@ -85,6 +88,44 @@ protected:
 
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
+
+	/**
+	 * Hit boxes used for server-side rewind.
+	 */
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* head;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* pelvis;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* spine_02;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* spine_03;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* upperarm_l;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* upperarm_r;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* lowerarm_l;	
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* lowerarm_r;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* hand_l;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* hand_r;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* thigh_l;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* thigh_r;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* calf_l;	
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* calf_r;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* foot_l;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* foot_r;
+
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class USpringArmComponent* CameraBoom;
@@ -101,11 +142,17 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);  // Rep notify do not call on the server! And its parameter can only be the one who will be replicated
 
+	/**
+	 * shoot Components
+	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 
 	UPROPERTY(VisibleAnywhere)
 	class UBuffComponent* Buff;
+
+	UPROPERTY(VisibleAnywhere)
+	class ULagCompensationComponent* Lagcompensation;
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // 客户端告诉服务端做什么
