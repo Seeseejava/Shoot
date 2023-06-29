@@ -867,3 +867,9 @@ ECombatState AShootCharacter::GetCombatState() const
 	return Combat->CombatState;
 }
 
+bool AShootCharacter::IsLocallyReloading()
+{
+	if (Combat == nullptr) return false;
+	return Combat->bLocallyReloading;
+}
+

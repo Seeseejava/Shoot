@@ -88,6 +88,11 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	}
 
 	bUseFABRIK = ShootCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+	// 解决换弹时combatstate还没复制过来倒是使用了FABRIK的问题
+	if (ShootCharacter->IsLocallyControlled() && ShootCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade)
+	{
+		bUseFABRIK = !ShootCharacter->IsLocallyControlled();
+	}
 	bUseAimOffsets = ShootCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !ShootCharacter->GetDisableGameplay();
 	bTransformRightHand = ShootCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !ShootCharacter->GetDisableGameplay();
 
