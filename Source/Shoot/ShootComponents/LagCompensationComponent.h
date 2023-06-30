@@ -52,6 +52,11 @@ private:
 	AShootCharacter* Character;
 	UPROPERTY()
 	class AShootPlayerController* Controller;
+
+	TDoubleLinkedList<FFramePackage> FrameHistory;
+
+	UPROPERTY(EditAnywhere)
+	float MaxRecordTime = 4.f;
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
