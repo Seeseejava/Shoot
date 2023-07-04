@@ -4,10 +4,12 @@
 #include "HitScanWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Shoot/Character/ShootCharacter.h"
+#include "Shoot/PlayerController/ShootPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "WeaponTypes.h"
+#include "Shoot/ShootComponents/LagCompensationComponent.h"
 #include "DrawDebugHelpers.h"
 
 
@@ -32,9 +34,9 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
 		AShootCharacter* ShootCharacter = Cast<AShootCharacter>(FireHit.GetActor());
-		if (ShootCharacter)
+		if (ShootCharacter && InstigatorController)
 		{
-			if (HasAuthority() && InstigatorController)
+			if (HasAuthority() && !bUseServerSideRewind)
 			{
 				UGameplayStatics::ApplyDamage(
 					ShootCharacter,
@@ -43,6 +45,21 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 					this,
 					UDamageType::StaticClass()
 				);
+			}
+			if (!HasAuthority() && bUseServerSideRewind)
+			{
+				ShootOwnerCharacter = ShootOwnerCharacter == nullptr ? Cast<AShootCharacter>(OwnerPawn) : ShootOwnerCharacter;
+				ShootOwnerController = ShootOwnerController == nullptr ? Cast<AShootPlayerController>(InstigatorController) : ShootOwnerController;
+				if (ShootOwnerController && ShootOwnerCharacter && ShootOwnerCharacter->GetLagCompensation())
+				{
+					ShootOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
+						ShootCharacter,
+						Start,
+						HitTarget,
+						ShootOwnerController->GetServerTime() - ShootOwnerController->SingleTripTime,
+						this
+					);
+				}
 			}
 		}
 		if (ImpactParticles)

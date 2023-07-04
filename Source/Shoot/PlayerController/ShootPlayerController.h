@@ -33,6 +33,8 @@ public:
 	void OnMatchStateSet(FName State);
 	void HandleMatchHasStarted();
 	void HandleCooldown();
+
+	float SingleTripTime = 0;
 protected:
 	virtual void BeginPlay() override;
 	void SetHUDTime();

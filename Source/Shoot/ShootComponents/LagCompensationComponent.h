@@ -57,6 +57,9 @@ public:
 	friend class AShootCharacter;
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color);
 	FServerSideRewindResult ServerSideRewind(class AShootCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime);
+
+	UFUNCTION(Server, Reliable)
+	void ServerScoreRequest(AShootCharacter* HitCharacter, const FVector_NetQuantize& TraceStart, const FVector_NetQuantize& HitLocation, float HitTime, class AWeapon* DamageCauser);
 protected:
 	virtual void BeginPlay() override;
 	void SaveFramePackage(FFramePackage& Package);
@@ -66,7 +69,9 @@ protected:
 	void MoveBoxes(AShootCharacter* HitCharacter, const FFramePackage& Package);
 	void ResetBoxes(AShootCharacter* HitCharacter, const FFramePackage& Package);
 	void EnableCharacterMeshCollision(AShootCharacter* HitCharacter, ECollisionEnabled:: Type CollisionEnabled);
+	void SaveFramePackage();
 private:
+
 	UPROPERTY()
 	AShootCharacter* Character;
 	UPROPERTY()
