@@ -84,7 +84,7 @@ void AWeapon::OnRep_Owner()
 		// To ensure SetHUDAmmo() after Owner Replicated.
 		// Ensure updating HUD by using PrimaryWeapon
 		ShootOwnerCharacter = ShootOwnerCharacter == nullptr ? Cast<AShootCharacter>(Owner) : ShootOwnerCharacter;
-		if (ShootOwnerCharacter && ShootOwnerCharacter->GetEuqippedWeapon() && ShootOwnerCharacter->GetEuqippedWeapon() == this)
+		if (ShootOwnerCharacter && ShootOwnerCharacter->GetEquippedWeapon() && ShootOwnerCharacter->GetEquippedWeapon() == this)
 		{
 			SetHUDAmmo();
 		}

@@ -33,7 +33,6 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 			AShootCharacter* ShootCharacter = Cast<AShootCharacter>(FireHit.GetActor());
 			if (ShootCharacter)
 			{
-
 				if (HitMap.Contains(ShootCharacter))
 				{
 					HitMap[ShootCharacter]++;
