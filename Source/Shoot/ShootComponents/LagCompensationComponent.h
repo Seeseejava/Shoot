@@ -43,10 +43,10 @@ struct FServerSideRewindResult
 	GENERATED_BODY()
 
 	UPROPERTY()
-	bool bHitConfirmed;
+	bool bHitConfirmed = false;
 
 	UPROPERTY()
-	bool bHeadShot;
+	bool bHeadShot = false;
 };
 
 USTRUCT(BlueprintType)

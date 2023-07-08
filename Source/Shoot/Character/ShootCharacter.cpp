@@ -23,6 +23,7 @@
 #include "Shoot/Weapon/WeaponTypes.h"
 #include "Components/BoxComponent.h"
 #include "Shoot/ShootComponents/LagCompensationComponent.h"
+#include "Shoot/Shoot.h"
 
 AShootCharacter::AShootCharacter()
 {
@@ -138,6 +139,16 @@ AShootCharacter::AShootCharacter()
 	foot_r = CreateDefaultSubobject<UBoxComponent>(TEXT("foot_r"));
 	foot_r->SetupAttachment(GetMesh(), FName("foot_r"));
 	HitCollisionBoxes.Add(FName("foot_r"), foot_r);
+
+	for (auto Box : HitCollisionBoxes)
+	{
+		if (Box.Value)
+		{
+			Box.Value->SetCollisionObjectType(ECC_HitBox); 
+			Box.Value->SetCollisionResponseToAllChannels(ECR_Ignore);
+			Box.Value->SetCollisionResponseToChannel(ECC_HitBox, ECR_Block);
+		}
+	}
 }
 
 void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
