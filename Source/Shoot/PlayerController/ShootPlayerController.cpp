@@ -134,6 +134,24 @@ void AShootPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	}
 }
 
+void AShootPlayerController::SetHUDGrenades(int32 Grenades)
+{
+	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
+	bool bHUDValid = ShootHUD &&
+		ShootHUD->CharacterOverlay &&
+		ShootHUD->CharacterOverlay->GrenadesText;
+	if (bHUDValid)
+	{
+		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades);
+		ShootHUD->CharacterOverlay->GrenadesText->SetText(FText::FromString(GrenadesText));
+	}
+	else
+	{
+		bInitializeGrenades = true;
+		HUDGrenades = Grenades;
+	}
+}
+
 void AShootPlayerController::SetHUDMatchCountdown(float CountdownTime)
 {
 	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
@@ -176,23 +194,7 @@ void AShootPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 	}
 }
 
-void AShootPlayerController::SetHUDGrenades(int32 Grenades)
-{
-	ShootHUD = ShootHUD == nullptr ? Cast<AShootHUD>(GetHUD()) : ShootHUD;
-	bool bHUDValid = ShootHUD &&
-		ShootHUD->CharacterOverlay &&
-		ShootHUD->CharacterOverlay->GrenadesText;
-	if (bHUDValid)
-	{
-		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades);
-		ShootHUD->CharacterOverlay->GrenadesText->SetText(FText::FromString(GrenadesText));
-	}
-	else
-	{
-		bInitializeGrenades = true;
-		HUDGrenades = Grenades;
-	}
-}
+
 
 void AShootPlayerController::OnPossess(APawn* InPawn)
 {
@@ -210,7 +212,6 @@ void AShootPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	ShootHUD = Cast<AShootHUD>(GetHUD());
 	ServerCheckMatchState();
 }
@@ -222,7 +223,7 @@ void AShootPlayerController::Tick(float DeltaTime)
 	SetHUDTime();
 
 	CheckTimeSync(DeltaTime);
-	PollInit();
+	PollInit(); //?
 
 	CheckPing(DeltaTime);
 }
@@ -339,15 +340,13 @@ void AShootPlayerController::StopHighPingWarning()
 	}
 }
 
-
-
 float AShootPlayerController::GetServerTime()
 {
 	if (HasAuthority()) return GetWorld()->GetTimeSeconds();
 	else return GetWorld()->GetTimeSeconds() + ClientServerDelta;
 }
 
-void AShootPlayerController::ReceivedPlayer()
+void AShootPlayerController::ReceivedPlayer() // Called after this PlayerController's viewport/net connection is associated with this player controller. 在初始化时调用，可能网络同步和处理的延迟，时间信息可能还没有在其他相关对象上同步，导致屏幕上的时间不会立即同步。
 {
 	Super::ReceivedPlayer();
 	if (IsLocalController())
@@ -370,8 +369,6 @@ void AShootPlayerController::OnMatchStateSet(FName State)
 		HandleCooldown();
 	}
 }
-
-
 
 void AShootPlayerController::OnRep_MatchState()
 {

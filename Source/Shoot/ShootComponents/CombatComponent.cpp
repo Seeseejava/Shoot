@@ -54,11 +54,7 @@ void UCombatComponent::SetAiming(bool bIsAiming)
 {
 	if (Character == nullptr || EquippedWeapon == nullptr) return;
 	bAiming = bIsAiming;  // 如果没有这句话，我们需要等待RPC到达服务器
-	// 一样的效果，因为ServerSetAiming会再server上执行
-	//if (!Character->HasAuthority())
-	//{
-	//	ServerSetAiming(bIsAiming);
-	//}
+
 	ServerSetAiming(bIsAiming);
 
 	if (Character)
@@ -107,7 +103,7 @@ void UCombatComponent::OnRep_SecondaryWeapon()
 	{
 		SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 		AttachActorToBackpack(SecondaryWeapon);
-		PlayEquipWeaponSound(SecondaryWeapon); //?
+		PlayEquipWeaponSound(SecondaryWeapon); 
 	}
 }
 
@@ -128,7 +124,6 @@ void UCombatComponent::ShotgunShellReload()
 		UpdateShotgunAmmoValues();
 	}
 }
-
 
 
 void UCombatComponent::Fire()
@@ -176,7 +171,6 @@ void UCombatComponent::FireHitScanWeapon()
 		if (!Character->HasAuthority()) LocalFire(HitTarget);
 		ServerFire(HitTarget);
 	}
-
 }
 
 void UCombatComponent::FireShotgun()
@@ -489,11 +483,8 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	{
 		EquipPrimaryWeapon(WeaponToEquip);
 	}
-
-
 	Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character->bUseControllerRotationYaw = true;
-
 }
 
 void UCombatComponent::SwapWeapons()

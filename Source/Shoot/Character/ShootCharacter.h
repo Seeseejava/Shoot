@@ -140,7 +140,8 @@ private:
 	class AWeapon* OverlappingWeapon;
 
 	UFUNCTION()
-	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);  // Rep notify do not call on the server! And its parameter can only be the one who will be replicated
+	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);  // Rep notify do not call on the server! And its parameter can only be the one who will be replicated！
+	// 可以带有一个参数，用于保存属性复制之前的值，从而执行相应的逻辑
 
 	/**
 	 * shoot Components

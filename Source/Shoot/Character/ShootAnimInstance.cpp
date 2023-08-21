@@ -43,7 +43,7 @@ void UShootAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	// Offset Yaw for Strafing
 	FRotator AimRotation = ShootCharacter->GetBaseAimRotation(); // global 这是一个可复制的值
-	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShootCharacter->GetVelocity());
+	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShootCharacter->GetVelocity());  // 从 X 轴方向（0,0,1）旋转到指定的向量 X
 	// YawOffset = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
 
 	// 为了解决插值之后倒退动画会出现从180到-180的问题

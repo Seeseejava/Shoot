@@ -48,14 +48,14 @@ AShootCharacter::AShootCharacter()
 	OverheadWidget->SetupAttachment(RootComponent);
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
-	Combat->SetIsReplicated(true);  // This Component is repliated itself and it does not need to be register
-
+	Combat->SetIsReplicated(true);  // This Component is repliated itself and it does not need to be register?
 	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
 	Buff->SetIsReplicated(true); 
 
 	Lagcompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensation"));
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
 	// do not block camera
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore); 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -66,7 +66,7 @@ AShootCharacter::AShootCharacter()
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
 
-	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent")); //?
 
 	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
 	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
@@ -161,9 +161,9 @@ void AShootCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME(AShootCharacter, bDisableGameplay);
 }
 
-
 void AShootCharacter::PostInitializeComponents()
 {
+	// Allow actors to initialize themselves on the C++ side after all of their components have been initialized, only called during gameplay
 	Super::PostInitializeComponents();
 
 	if (Combat)
@@ -269,7 +269,6 @@ void AShootCharacter::PlayHitReactMontage()
 		AnimInstace->Montage_JumpToSection(SectionName);
 	}
 }
-
 
 void AShootCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser)
 {
@@ -415,8 +414,6 @@ void AShootCharacter::RotateInPlace(float DeltaTime)
 	}
 }
 
-
-
 void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -432,15 +429,11 @@ void AShootCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShootCharacter::ReloadButtonPressed);
 	PlayerInputComponent->BindAction("ThrowGrenade", IE_Pressed, this, &AShootCharacter::GrenadeButtonPressed);
 
-
 	PlayerInputComponent->BindAxis("MoveForward", this, &AShootCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AShootCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &AShootCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &AShootCharacter::LookUp);
-
 }
-
-
 
 void AShootCharacter::MoveForward(float Value)
 {
@@ -448,7 +441,7 @@ void AShootCharacter::MoveForward(float Value)
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
-		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
+		const FVector Direction(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X)); // x:Forward, y:Right, z:Up
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -492,14 +485,6 @@ void AShootCharacter::EquipButtonPressed()
 	if (bDisableGameplay) return;
 	if (Combat)
 	{
-		//if (HasAuthority())
-		//{
-		//	Combat->EquipWeapon(OverlappingWeapon);
-		//}
-		//else
-		//{
-		//	ServerEquipButtonPressed();
-		//}
 		ServerEquipButtonPressed();
 	}
 }
@@ -701,7 +686,7 @@ void AShootCharacter::OnRep_ReplicatedMovement()
 {
 	Super::OnRep_ReplicatedMovement();
 
-	// Match the Newwork update speed.
+	// Match the Nework update speed.
 	SimProxiesTurn();
 
 	TimeSinceLastMovementReplication = 0.f;
@@ -797,7 +782,7 @@ void AShootCharacter::Destroyed()
 	}
 
 	AShootGameMode* ShootGameMode = Cast<AShootGameMode>(UGameplayStatics::GetGameMode(this));
-	bool bMatchNotInProgress = ShootGameMode && ShootGameMode->GetMatchState() != MatchState::InProgress;
+	bool bMatchNotInProgress = ShootGameMode && ShootGameMode->GetMatchState() != MatchState::InProgress; //！
 	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
 	{
 		Combat->EquippedWeapon->Destroy();
@@ -857,12 +842,14 @@ void AShootCharacter::UpdateDissolveMaterial(float DissolveValue)
 	}
 }
 
+
+// Timeline！
 void AShootCharacter::StartDissolve()
 {
 	DissolveTrack.BindDynamic(this, &AShootCharacter::UpdateDissolveMaterial);
 	if (DissolveCurve && DissolveTimeline)
 	{
-		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack); // bind DissolveCurve to DissolveTimeline and 将DissolveTrack与时间轴上的插值浮点值更新事件
 		DissolveTimeline->Play();
 	}
 }

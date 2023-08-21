@@ -133,18 +133,6 @@ void AWeapon::ClientUpdateAmmo_Implementation(int32 ServerAmmo)
 	SetHUDAmmo();
 }
 
-void AWeapon::ClientAddAmmo_Implementation(int32 AmmoToAdd)
-{
-	if (HasAuthority()) return;
-	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
-	ShootOwnerCharacter = ShootOwnerCharacter == nullptr ? Cast<AShootCharacter>(GetOwner()) : ShootOwnerCharacter;
-	if(ShootOwnerCharacter && ShootOwnerCharacter->GetCombat() && IsFull())
-	{
-		ShootOwnerCharacter->GetCombat()->JumpToShotgunEnd();
-		SetHUDAmmo();
-	}
-}
-
 void AWeapon::SpendRound()
 {
 	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
@@ -155,7 +143,19 @@ void AWeapon::SpendRound()
 	}
 	else
 	{
-		++Sequence;
+		++Sequence; // !
+	}
+}
+
+void AWeapon::ClientAddAmmo_Implementation(int32 AmmoToAdd)
+{
+	if (HasAuthority()) return;
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+	ShootOwnerCharacter = ShootOwnerCharacter == nullptr ? Cast<AShootCharacter>(GetOwner()) : ShootOwnerCharacter;
+	if (ShootOwnerCharacter && ShootOwnerCharacter->GetCombat() && IsFull())
+	{
+		ShootOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+		SetHUDAmmo();
 	}
 }
 
@@ -261,7 +261,7 @@ void AWeapon::EnableCustomDepth(bool bEnable)
 {
 	if (WeaponMesh)
 	{
-		WeaponMesh->SetRenderCustomDepth(bEnable);
+		WeaponMesh->SetRenderCustomDepth(bEnable);	// !
 	}
 }
 
